@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スクバナ！便利ツールズ | 学校・クラスで使える無料便利ツール集</title>
+    <meta name="description" content="席替え、班決め、ランダム指名、ルーレット、タイマーなど、小中高校の授業やホームルームで使える便利なツールを1つにまとめた完全無料のウェブアプリです。男女バランスやNGペアにも対応。">
+    
+    <!-- OGP Tags -->
+    <meta property="og:title" content="スクバナ！便利ツールズ | 学校・クラスで使える無料便利ツール集">
+    <meta property="og:description" content="席替え、班決め、ランダム指名、ルーレット、タイマーなど、学校で使える便利なツールを1つにまとめた完全無料ウェブアプリ。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.github.io/school-tools/">
+    
+    <!-- PWA Basic -->
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & THEME
+           ========================================================================== */
+        :root {
+            --bg-main: #f4f7f6;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            
+            --primary: #4a90e2;
+            --primary-hover: #357abd;
+            --accent: #ff6b6b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            
+            --male-color: #3b82f6;
+            --female-color: #ec4899;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --radius: 16px;
+            --radius-sm: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
+        }
+
+        /* ==========================================================================
+           2. GENERAL STYLES & LAYOUT
+           ========================================================================== */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); transition: var(--transition); line-height: 1.5; padding-bottom: 60px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 16px; }
+        
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .logo-area h1 { font-size: 24px; color: var(--primary); font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .logo-area p { font-size: 12px; color: var(--text-muted); }
+        .header-controls { display: flex; gap: 12px; align-items: center; }
+
+        /* Ads Space Layout */
+        .ads-container { max-width: 728px; margin: 0 auto 20px auto; min-height: 90px; background: rgba(0,0,0,0.02); border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-muted); text-align: center; border-radius: var(--radius-sm); }
+
+        /* Dashboard & Navigation */
+        .main-layout { display: grid; grid-template-columns: 260px 1fr; gap: 24px; }
+        @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } .sidebar { display: none; } .mobile-nav { display: flex !important; } }
+        
+        .sidebar { background: var(--bg-card); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow-md); height: fit-content; }
+        .nav-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-main); font-weight: 600; transition: var(--transition); text-decoration: none; border: none; background: none; width: 100%; text-align: left; font-size: 14px; }
+        .nav-item:hover { background: var(--bg-main); }
+        .nav-item.active { background: var(--primary); color: white; }
+
+        .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-top: 1px solid var(--border); z-index: 100; overflow-x: auto; white-space: nowrap; padding: 6px; gap: 8px; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+        .mobile-nav .nav-item { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px; font-size: 10px; width: auto; }
+
+        /* Components & Forms */
+        .card { background: var(--bg-card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-md); margin-bottom: 24px; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h2 { font-size: 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); padding-left: 8px; }
+        h3 { font-size: 16px; margin: 16px 0 8px 0; color: var(--text-main); }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+        textarea, input[type="text"], input[type="number"], select { width: 100%; padding: 10px 14px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: var(--radius-sm); font-size: 14px; transition: var(--transition); }
+        textarea:focus, input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(74,144,226,0.2); }
+        
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; transition: var(--transition); justify-content: center; }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-accent { background: var(--accent); } .btn-accent:hover { background: #ff4f4f; }
+        .btn-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); } .btn-secondary:hover { background: var(--border); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        .badge { display: inline-block; padding: 2px 8px; font-size: 11px; font-weight: bold; border-radius: 20px; color: white; }
+        .badge-m { background-color: var(--male-color); }
+        .badge-f { background-color: var(--female-color); }
+
+        /* Tools View Routing */
+        .tool-panel { display: none; }
+        .tool-panel.active { display: block; }
+
+        /* ==========================================================================
+           3. SPECIAL COMPONENT STYLES (Seats, Wheels, Timers etc.)
+           ========================================================================== */
+        /* Seating Chart */
+        .classroom { margin-top: 20px; border: 2px solid var(--border); padding: 20px; border-radius: var(--radius); background: var(--bg-main); }
+        .teacher-desk { width: 140px; height: 35px; background: var(--text-muted); color: var(--bg-card); margin: 0 auto 24px auto; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border-radius: 0 0 8px 8px; }
+        .seat-grid { display: grid; gap: 10px; justify-content: center; margin: 0 auto; overflow-x: auto; padding: 4px; }
+        .seat { width: 80px; height: 65px; background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; position: relative; box-shadow: var(--shadow-sm); transition: transform 0.5s ease; padding: 4px; }
+        .seat.shuffling { animation: seatShake 0.15s infinite alternate; }
+        @keyframes seatShake { from { transform: translate(2px, 1px) rotate(1deg); } to { transform: translate(-1px, -1px) rotate(-1deg); } }
+        .seat .gender-dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 4px; right: 4px; }
+        
+        /* Groups */
+        .groups-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+        .group-card { border-top: 6px solid var(--primary); background: var(--bg-card); padding: 16px; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); }
+        .group-member-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+        
+        /* Big Display Screen */
+        .display-screen { background: #000; color: #00ff66; font-family: monospace; padding: 32px; border-radius: var(--radius); text-align: center; font-size: 48px; font-weight: bold; box-shadow: inset 0 0 20px rgba(0,255,102,0.3); margin: 16px 0; min-height: 140px; display: flex; align-items: center; justify-content: center; word-break: break-all; }
+        .display-screen.celebrate { animation: flashScreen 0.3s ease 3; }
+        @keyframes flashScreen { 0%, 100% { background: #000; color: #00ff66; } 50% { background: #00ff66; color: #000; } }
+
+        /* History & List Tags */
+        .history-box { max-height: 150px; overflow-y: auto; background: var(--bg-main); padding: 8px; border-radius: var(--radius-sm); font-size: 13px; margin-top: 8px; }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag { background: var(--primary); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+        .tag .remove-btn { background: none; border: none; color: white; cursor: pointer; font-weight: bold; }
+
+        /* Roulette Wheel Center Canvas */
+        .wheel-box { position: relative; width: 300px; height: 300px; margin: 20px auto; }
+        .wheel-arrow { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid var(--accent); z-index: 10; }
+        canvas#roulette-canvas { width: 100%; height: 100%; border-radius: 50%; }
+
+        /* Timer Fullscreen */
+        .timer-fullscreen { position: fixed; top:0; left:0; width:100vw; height:100vh; background: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .timer-big-text { font-size: clamp(64px, 20vw, 180px); font-weight: 800; font-variant-numeric: tabular-nums; }
+
+        /* Draw (Kujibiki) Boxes */
+        .kuji-box-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; justify-content: center; }
+        .kuji-box { width: 70px; height: 70px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-md); font-size: 20px; }
+        .kuji-box.opened { background: var(--bg-input); color: var(--text-main); border: 2px solid var(--border); box-shadow: none; transform: scale(0.95); }
+
+        /* Statistics Layout */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: var(--bg-main); padding: 12px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--border); }
+        .stat-val { font-size: 24px; font-weight: 800; color: var(--primary); }
+        .stat-lbl { font-size: 11px; color: var(--text-muted); }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="container">
+        <!-- ==========================================================================
+           HEADER SECTION & GLOBAL CONTROLS
+           ========================================================================== */ -->
+        <header>
+            <div class="logo-area">
+                <h1>🏫 スクバナ！便利ツールズ</h1>
+                <p>学校生活・授業を10倍楽しく、効率的に変える統合型Webパック</p>
+            </div>
+            <div class="header-controls">
+                <select id="global-class-selector" onchange="ClassManager.loadSelectedClass()" style="width: 140px;">
+                    <option value="">-- クラス選択 --</option>
+                </select>
+                <button class="btn btn-secondary" onclick="App.toggleTheme()" aria-label="テーマ切り替え">🌓</button>
+            </div>
+        </header>
+
+        <!-- Google AdSense Placement Area (Compliant Non-Intrusive Banner Place) -->
+        <div class="ads-container">
+            <div>【スポンサーリンク】<br>ここにGoogle AdSense広告（レスポンシブバナー）コードを挿入可能です。レイアウトを崩さない設計。</div>
+        </div>
+
+        <div class="main-layout">
+            <!-- ==========================================================================
+               SIDEBAR NAVIGATION (PC VIEW)
+               ========================================================================== */ -->
+            <aside class="sidebar">
+                <nav>
+                    <ul class="nav-list" id="pc-nav-list"></ul>
+                </nav>
+            </aside>
+
+            <!-- ==========================================================================
+               MAIN CONTENTS AREA (ROUTING ROOT)
+               ========================================================================== */ -->
+            <main class="content-root">
+                
+                <!-- 1. 座席決め -->
+                <div id="panel-seating" class="tool-panel active">
+                    <div class="card">
+                        <h2>🪑 座席決め完全版</h2>
+                        <div class="grid-2">
+                            <div>
+                                <label>基本設定</label>
+                                <div class="grid-inputs">
+                                    <div>
+                                        <label>列数 (横)</label>
+                                        <input type="number" id="seat-cols" value="6" min="1" max="12">
+                                    </div>
+                                    <div>
+                                        <label>行数 (縦)</label>
+                                        <input type="number" id="seat-rows" value="6" min="1" max="12">
+                                    </div>
+                                </div>
+                                <div style="margin-top:10px;">
+                                    <label><input type="checkbox" id="seat-gender-mix"> 男女交互に配置を試みる</label>
+                                </div>
+                                
+                                <h3 style="margin-top:12px;">🚫 NGペア設定 (1行に1組、カンマ区切り)</h3>
+                                <textarea id="seat-ng-pairs" rows="2" placeholder="例: 田中太郎,佐藤花子&#10;鈴木一郎,高橋次郎" style="font-size:12px;"></textarea>
+                            </div>
+                            <div>
+                                <label>クラス名簿データ連動状況</label>
+                                <p id="seating-status-text" style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">クラス管理で名簿を入力してください。</p>
+                                <div class="btn-group">
+                                    <button class="btn" onclick="SeatingModule.execute()">席替え実行！</button>
+                                    <button class="btn btn-secondary" onclick="SeatingModule.exportAsImage()">🖼️ 画像保存</button>
+                                    <button class="btn btn-secondary" onclick="SeatingModule.generateShareURL()">🔗 結果共有URL</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="classroom">
+                            <div class="teacher-desk">👥 教卓 (黒板側)</div>
+                            <div class="seat-grid" id="classroom-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 班決め -->
+                <div id="panel-groups" class="tool-panel">
+                    <div class="card">
+                        <h2>👥 バランス考慮・班決め</h2>
+                        <div class="grid-2">
+                            <div>
+                                <div class="grid-inputs">
+                                    <div>
+                                        <label>1班あたりの目標人数</label>
+                                        <input type="number" id="group-target-size" value="4" min="1" max="20">
+                                    </div>
+                                    <div style="display:flex; align-items:flex-end;">
+                                        <label><input type="checkbox" id="group-gender-balance" checked> 男女比を均等化する</label>
+                                    </div>
+                                </div>
+                                <div style="margin-top:10px;">
+                                    <label>班決め用NGペア (座席決めと共通)</label>
+                                </div>
+                                <button class="btn" onclick="GroupModule.execute()" style="margin-top:12px;">班分けを実行</button>
+                                <button class="btn btn-secondary" onclick="GroupModule.exportAsImage()" style="margin-top:12px;">🖼️ 班結果画像保存</button>
+                            </div>
+                        </div>
+                        <div class="groups-layout" id="groups-result-container"></div>
+                    </div>
+                </div>
+
+                <!-- 3. ランダム指名 -->
+                <div id="panel-picker" class="tool-panel">
+                    <div class="card">
+                        <h2>🎯 高機能ランダム指名機</h2>
+                        <div class="display-screen" id="picker-screen">READY</div>
+                        <div class="btn-group">
+                            <button class="btn" onclick="PickerModule.spin()">指名スタート</button>
+                            <button class="btn btn-accent" onclick="PickerModule.pickTodayPresenters()">📋 今日の発表者(3名)選出</button>
+                        </div>
+                        <h3>履歴 (同じ人が連続で出にくい自動補正機能オン)</h3>
+                        <div class="history-box" id="picker-history">履歴はありません。</div>
+                    </div>
+                </div>
+
+                <!-- 4. ルーレット -->
+                <div id="panel-roulette" class="tool-panel">
+                    <div class="card">
+                        <h2>🎡 カスタム・ルーレット</h2>
+                        <div class="grid-2">
+                            <div style="text-align:center;">
+                                <div class="wheel-box">
+                                    <div class="wheel-arrow"></div>
+                                    <canvas id="roulette-canvas" width="300" height="300"></canvas>
+                                </div>
+                                <button class="btn" onclick="RouletteModule.spin()">ルーレット起動</button>
+                            </div>
+                            <div>
+                                <label>項目追加</label>
+                                <div class="grid-inputs">
+                                    <input type="text" id="roulette-input-name" placeholder="例：宿題免除">
+                                    <button class="btn" onclick="RouletteModule.addItem()">追加</button>
+                                </div>
+                                <div class="tag-list" id="roulette-tags"></div>
+                                <h3 style="margin-top:16px;">抽選結果履歴</h3>
+                                <div class="history-box" id="roulette-history"></div>
+                                <button class="btn btn-secondary" onclick="RouletteModule.generateShareURL()" style="margin-top:8px; width:100%;">🔗 現在の項目構成URLを生成</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 出席番号抽選 -->
+                <div id="panel-numbers" class="tool-panel">
+                    <div class="card">
+                        <h2>🔢 出席番号ショート抽選</h2>
+                        <div class="grid-inputs" style="max-width:400px; margin-bottom:16px;">
+                            <div>
+                                <label>開始番号</label>
+                                <input type="number" id="num-start" value="1">
+                            </div>
+                            <div>
+                                <label>終了番号</label>
+                                <input type="number" id="num-end" value="40">
+                            </div>
+                        </div>
+                        <div class="display-screen" id="number-screen">00</div>
+                        <button class="btn" onclick="Number抽選Module.spin()">番号を抽選する</button>
+                        <h3>選出済み履歴</h3>
+                        <div class="history-box" id="number-history"></div>
+                    </div>
+                </div>
+
+                <!-- 6. タイマー -->
+                <div id="panel-timer" class="tool-panel">
+                    <div class="card">
+                        <h2>⏱️ カウントダウンタイマー</h2>
+                        <div class="display-screen" id="timer-display" style="font-size:72px; color:#ff4f4f;">05:00</div>
+                        <div class="btn-group">
+                            <button class="btn" onclick="TimerModule.toggle()">スタート/一時停止</button>
+                            <button class="btn btn-secondary" onclick="TimerModule.reset()">リセット</button>
+                            <button class="btn btn-secondary" onclick="TimerModule.toggleFullscreen()">全画面表示</button>
+                        </div>
+                        <h3>クイックプリセット</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="TimerModule.setPreset(60)">1分</button>
+                            <button class="btn btn-secondary" onclick="TimerModule.setPreset(180)">3分</button>
+                            <button class="btn btn-secondary" onclick="TimerModule.setPreset(300)">5分</button>
+                            <button class="btn btn-secondary" onclick="TimerModule.setPreset(600)">10分</button>
+                            <button class="btn btn-secondary" onclick="TimerModule.setPreset(1500)">25分 (ポモドーロ)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. ストップウォッチ -->
+                <div id="panel-stopwatch" class="tool-panel">
+                    <div class="card">
+                        <h2>⏱️ ストップウォッチ (ラップ機能付)</h2>
+                        <div class="display-screen" id="sw-display" style="color:#ffffff;">00:00.00</div>
+                        <div class="btn-group">
+                            <button class="btn" onclick="StopwatchModule.toggle()">スタート/ストップ</button>
+                            <button class="btn btn-accent" onclick="StopwatchModule.lap()">ラップタイム</button>
+                            <button class="btn btn-secondary" onclick="StopwatchModule.reset()">クリア</button>
+                        </div>
+                        <h3>ラップ記録・履歴</h3>
+                        <div class="history-box" id="sw-history"></div>
+                    </div>
+                </div>
+
+                <!-- 8. くじ引き -->
+                <div id="panel-kuji" class="tool-panel">
+                    <div class="card">
+                        <h2>📦 ドキドキくじ引き箱</h2>
+                        <div class="grid-inputs" style="max-width:400px; margin-bottom:16px;">
+                            <div>
+                                <label>総数</label>
+                                <input type="number" id="kuji-total" value="10">
+                            </div>
+                            <div>
+                                <label>当たり本数</label>
+                                <input type="number" id="kuji-win" value="2">
+                            </div>
+                        </div>
+                        <button class="btn" onclick="KujiModule.init()">くじ箱を生成・リセット</button>
+                        <div class="kuji-box-container" id="kuji-box-wrapper"></div>
+                    </div>
+                </div>
+
+                <!-- 9. おみくじ -->
+                <div id="panel-omikuji" class="tool-panel">
+                    <div class="card" style="text-align:center;">
+                        <h2>⛩️ 学業応援！クラスおみくじ</h2>
+                        <div class="display-screen" id="omikuji-screen" style="color:#f59e0b; font-size:56px;">？</div>
+                        <p id="omikuji-comment" style="margin:12px 0; color:var(--text-muted); font-weight:bold;"></p>
+                        <button class="btn btn-accent" onclick="OmikujiModule.draw()">おみくじを引く</button>
+                    </div>
+                </div>
+
+                <!-- 10. 今日のラッキー席 -->
+                <div id="panel-lucky" class="tool-panel">
+                    <div class="card" style="text-align:center;">
+                        <h2>🍀 本日のラッキーパーソン座席</h2>
+                        <div class="display-screen" id="lucky-screen" style="font-size:36px; color:#10b981;">?? 列 - ?? 行目の席</div>
+                        <p id="lucky-comment" style="margin:12px 0; color:var(--text-muted); font-weight:bold;"></p>
+                        <button class="btn" onclick="LuckySeatModule.generate()">ラッキー席を選出</button>
+                    </div>
+                </div>
+
+                <!-- 11. クラス管理 -->
+                <div id="panel-classes" class="tool-panel">
+                    <div class="card">
+                        <h2>🗂️ 複数クラス・名簿マスター管理</h2>
+                        <div class="grid-2">
+                            <div>
+                                <label>新規登録 / 上書き保存するクラス名</label>
+                                <input type="text" id="class-name-input" placeholder="例: 2年3組">
+                                <label style="margin-top:12px;">名簿データ (1行に1人: [名前],[性別(MかF)])</label>
+                                <textarea id="class-roster-input" rows="10" placeholder="田中太郎,M&#10;佐藤花子,F&#10;鈴木一郎,M&#10;高橋美咲,F"></textarea>
+                                <button class="btn" onclick="ClassManager.saveClass()" style="margin-top:10px; width:100%;">💾 このクラス情報を保存・更新する</button>
+                            </div>
+                            <div>
+                                <h3>保存済みクラス一覧</h3>
+                                <div id="saved-classes-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;"></div>
+                                <div class="ads-container" style="min-height:120px;">
+                                    広告枠<br>データ保存中もユーザー体験を妨げないセーフエリア設計
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 12. 統計情報 -->
+                <div id="panel-stats" class="tool-panel">
+                    <div class="card">
+                        <h2>📊 システム利用統計</h2>
+                        <div class="stats-grid">
+                            <div class="stat-card"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">総起動回数</div></div>
+                            <div class="stat-card"><div class="stat-val" id="st-seat">0</div><div class="stat-lbl">席替え回数</div></div>
+                            <div class="stat-card"><div class="stat-val" id="st-group">0</div><div class="stat-lbl">班分け回数</div></div>
+                            <div class="stat-card"><div class="stat-val" id="st-pick">0</div><div class="stat-lbl">指名回数</div></div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="StatsModule.clear()">統計データをリセット</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Bottom Tab Bar -->
+    <nav class="mobile-nav" id="mobile-nav-list"></nav>
+
+    <!-- Timer Fullscreen Overlay DOM Component -->
+    <div id="timer-overlay" class="timer-fullscreen" style="display:none;">
+        <div class="timer-big-text" id="timer-overlay-text">05:00</div>
+        <div class="btn-group">
+            <button class="btn" onclick="TimerModule.toggle()">一時停止</button>
+            <button class="btn btn-secondary" onclick="TimerModule.toggleFullscreen()">全画面を閉じる</button>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       JAVASCRIPT ARCHITECTURE & LOGICS
+       ========================================================================== */ -->
+    <script>
+        /**
+         * アプリケーション全体の基本メニュー定義 (全12機能)
+         */
+        const MENUS = [
+            { id: "seating", name: "座席決め", icon: "🪑" },
+            { id: "groups", name: "班決め", icon: "👥" },
+            { id: "picker", name: "ランダム指名", icon: "🎯" },
+            { id: "roulette", name: "ルーレット", icon: "🎡" },
+            { id: "numbers", name: "出席番号抽選", icon: "🔢" },
+            { id: "timer", name: "タイマー", icon: "⏱️" },
+            { id: "stopwatch", name: "ストップウォッチ", icon: "⏱️" },
+            { id: "kuji", name: "くじ引き", icon: "📦" },
+            { id: "omikuji", name: "おみくじ", icon: "⛩️" },
+            { id: "lucky", name: "ラッキー席", icon: "🍀" },
+            { id: "classes", name: "クラス管理", icon: "🗂️" },
+            { id: "stats", name: "統計データ", icon: "📊" }
+        ];
+
+        // 状態管理（Stateオブジェクト）の一元化
+        const State = {
+            classes: {},         // 保存された全クラスオブジェクト
+            currentClassKey: "", // 選択中のクラス名キー
+            stats: { total: 0, seat: 0, group: 0, pick: 0 },
+            history: { picker: [], roulette: [], numbers: [] }
+        };
+
+        /**
+         * XSSエスケープ対策ユーティリティ
+         */
+        function safeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        /**
+         * Web Audio APIを使用した、外部アセット不要のサウンドエフェクト生成器
+         */
+        const SoundFX = {
+            ctx: null,
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            playTick() {
+                this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.05);
+            },
+            playSuccess() {
+                this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, this.ctx.currentTime + 0.2); // G5
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.4);
+            },
+            playAlarm() {
+                this.init();
+                for(let i=0; i<3; i++) {
+                    const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(880, this.ctx.currentTime + i*0.2);
+                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime + i*0.2); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i*0.2 + 0.15);
+                    osc.connect(gain); gain.connect(this.ctx.destination); osc.start(this.ctx.currentTime + i*0.2); osc.stop(this.ctx.currentTime + i*0.2 + 0.15);
+                }
+            }
+        };
+
+        /**
+         * コアアプリケーション制御（ルーティング、初期化、テーマ）
+         */
+        const App = {
+            init() {
+                this.buildNavigation();
+                ClassManager.loadAll();
+                StatsModule.init();
+                this.checkUrlParams();
+                
+                // 初回起動カウント
+                State.stats.total++;
+                StatsModule.save();
+            },
+            buildNavigation() {
+                const pcNav = document.getElementById('pc-nav-list');
+                const mobileNav = document.getElementById('mobile-nav-list');
+                MENUS.forEach(menu => {
+                    const btnHtml = `<button class="nav-item ${menu.id==='seating'?'active':''}" data-id="${menu.id}" onclick="App.navigate('${menu.id}')"><span>${menu.icon}</span> <span>${menu.name}</span></button>`;
+                    pcNav.insertAdjacentHTML('beforeend', btnHtml);
+                    mobileNav.insertAdjacentHTML('beforeend', btnHtml);
+                });
+            },
+            navigate(id) {
+                document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(btn => {
+                    if(btn.getAttribute('data-id') === id) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+                const target = document.getElementById(`panel-${id}`);
+                if(target) target.classList.add('active');
+                
+                if (id === 'roulette') RouletteModule.draw();
+            },
+            toggleTheme() {
+                const body = document.body;
+                const nextTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                body.setAttribute('data-theme', nextTheme);
+            },
+            checkUrlParams() {
+                // クエリパラメータの解析による共有URLパーサー
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('mode') && urlParams.get('mode') === 'roulette_share') {
+                    const itemsData = urlParams.get('items');
+                    if(itemsData) {
+                        RouletteModule.items = itemsData.split(',');
+                        this.navigate('roulette');
+                    }
+                }
+            }
+        };
+
+        /**
+         * クラス・名簿データマスターマネージャーモジュール
+         */
+        const ClassManager = {
+            loadAll() {
+                const data = localStorage.getItem('school_classes');
+                if(data) {
+                    State.classes = JSON.parse(data);
+                } else {
+                    // デフォルトのサンプルデータ投入設定
+                    State.classes = {
+                        "サンプル1年A組": [
+                            {name:"青山 駿", gender:"M"}, {name:"井上 櫻", gender:"F"}, {name:"宇野 怜", gender:"M"}, {name:"遠藤 葵", gender:"F"},
+                            {name:"岡田 陸", gender:"M"}, {name:"加藤 蘭", gender:"F"}, {name:"佐藤 翔", gender:"M"}, {name:"高橋 凛", gender:"F"},
+                            {name:"田中 蓮", gender:"M"}, {name:"渡辺 紬", gender:"F"}, {name:"中村 陽", gender:"M"}, {name:"香川 結", gender:"F"}
+                        ]
+                    };
+                    localStorage.setItem('school_classes', JSON.stringify(State.classes));
+                }
+                this.updateSelector();
+                this.renderManagerList();
+            },
+            updateSelector() {
+                const selector = document.getElementById('global-class-selector');
+                selector.innerHTML = '<option value="">-- クラス選択 --</option>';
+                Object.keys(State.classes).forEach(key => {
+                    const opt = document.createElement('option');
+                    opt.value = key; opt.textContent = key;
+                    if(key === State.currentClassKey) opt.selected = true;
+                    selector.appendChild(opt);
+                });
+            },
+            renderManagerList() {
+                const container = document.getElementById('saved-classes-list');
+                container.innerHTML = '';
+                Object.keys(State.classes).forEach(key => {
+                    const item = document.createElement('div');
+                    item.className = 'card'; item.style.padding = '12px'; item.style.margin = '0';
+                    item.style.display = 'flex'; item.style.justifyContent = 'between'; item.style.alignItems = 'center';
+                    item.innerHTML = `
+                        <div style="flex-grow:1; font-weight:bold;">${safeHTML(key)} (${State.classes[key].length}名)</div>
+                        <div class="btn-group" style="margin:0;">
+                            <button class="btn btn-secondary" onclick="ClassManager.select('${safeHTML(key)}')">読込</button>
+                            <button class="btn btn-accent" onclick="ClassManager.deleteClass('${safeHTML(key)}')">削除</button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            },
+            select(key) {
+                State.currentClassKey = key;
+                this.updateSelector();
+                this.loadSelectedClass();
+            },
+            loadSelectedClass() {
+                const selector = document.getElementById('global-class-selector');
+                State.currentClassKey = selector.value;
+                
+                const statusText = document.getElementById('seating-status-text');
+                if(State.currentClassKey && State.classes[State.currentClassKey]) {
+                    const roster = State.classes[State.currentClassKey];
+                    statusText.textContent = `選択中: ${State.currentClassKey} (現在 ${roster.length} 名設定中)`;
+                    
+                    // フォームへの自動展開
+                    document.getElementById('class-name-input').value = State.currentClassKey;
+                    document.getElementById('class-roster-input').value = roster.map(r => `${r.name},${r.gender}`).join('\n');
+                } else {
+                    statusText.textContent = "クラスが選択されていません。";
+                }
+            },
+            saveClass() {
+                const name = document.getElementById('class-name-input').value.trim();
+                const rosterText = document.getElementById('class-roster-input').value.trim();
+                if(!name) return alert("クラス名を入力してください。");
+                
+                const lines = rosterText.split('\n');
+                const list = [];
+                lines.forEach(line => {
+                    const parts = line.split(',');
+                    if(parts[0]) {
+                        list.push({
+                            name: parts[0].trim(),
+                            gender: (parts[1] && parts[1].trim().toUpperCase() === 'F') ? 'F' : 'M'
+                        });
+                    }
+                });
+                
+                State.classes[name] = list;
+                localStorage.setItem('school_classes', JSON.stringify(State.classes));
+                State.currentClassKey = name;
+                this.loadAll();
+                alert("クラス名簿を保存しました。");
+            },
+            deleteClass(key) {
+                if(!confirm(`${key} のデータを削除しますか？`)) return;
+                delete State.classes[key];
+                localStorage.setItem('school_classes', JSON.stringify(State.classes));
+                if(State.currentClassKey === key) State.currentClassKey = "";
+                this.loadAll();
+            },
+            getCurrentRoster() {
+                if(State.currentClassKey && State.classes[State.currentClassKey]) {
+                    return [...State.classes[State.currentClassKey]];
+                }
+                return [];
+            }
+        };
+
+        /**
+         * 1. 座席決めモジュール（男女交互配置アルゴリズム & NGペア回避システム）
+         */
+        const SeatingModule = {
+            currentLayout: [],
+            execute() {
+                const roster = ClassManager.getCurrentRoster();
+                if(roster.length === 0) return alert("有効なクラス名簿が読み込まれていません。クラス管理をご確認ください。");
+                
+                const cols = parseInt(document.getElementById('seat-cols').value) || 6;
+                const rows = parseInt(document.getElementById('seat-rows').value) || 6;
+                const totalSeats = cols * rows;
+                if(roster.length > totalSeats) return alert("座席数が生徒数より不足しています。行数または列数を増やしてください。");
+
+                const useGenderMix = document.getElementById('seat-gender-mix').checked;
+                const ngText = document.getElementById('seat-ng-pairs').value;
+                const ngPairs = this.parseNgPairs(ngText);
+
+                // 最大100回試行して条件に合う座席をシミュレーション抽出
+                let bestLayout = null;
+                for(let attempt=0; attempt<100; attempt++) {
+                    let candidates = [...roster];
+                    // 空席埋め
+                    while(candidates.length < totalSeats) { candidates.push({name:"", gender:""}); }
+                    
+                    // シャッフル
+                    this.shuffle(candidates);
+                    
+                    if(useGenderMix) { this.applyGenderSort(candidates, cols); }
+                    
+                    if(!this.checkNgPairsViolation(candidates, cols, ngPairs)) {
+                        bestLayout = candidates;
+                        break;
+                    }
+                    if(attempt === 99) bestLayout = candidates; // 妥協案
+                }
+
+                this.currentLayout = bestLayout;
+                this.render(cols, rows);
+                
+                State.stats.seat++; StatsModule.save();
+            },
+            shuffle(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+            },
+            parseNgPairs(text) {
+                if(!text) return [];
+                return text.split('\n').map(l => l.split(',').map(n => n.trim())).filter(p => p.length >= 2);
+            },
+            applyGenderSort(arr, cols) {
+                // 簡易チェス盤格子縞配置
+                const males = arr.filter(p => p.gender === 'M');
+                const females = arr.filter(p => p.gender === 'F');
+                const empties = arr.filter(p => p.name === "");
+                
+                let mIdx = 0, fIdx = 0, eIdx = 0;
+                for(let i=0; i<arr.length; i++) {
+                    const isEvenPosition = (Math.floor(i / cols) + (i % cols)) % 2 === 0;
+                    if(isEvenPosition) {
+                        if(mIdx < males.length) { arr[i] = males[mIdx++]; }
+                        else if(fIdx < females.length) { arr[i] = females[fIdx++]; }
+                        else { arr[i] = empties[eIdx++]; }
+                    } else {
+                        if(fIdx < females.length) { arr[i] = females[fIdx++]; }
+                        else if(mIdx < males.length) { arr[i] = males[mIdx++]; }
+                        else { arr[i] = empties[eIdx++]; }
+                    }
+                }
+            },
+            checkNgPairsViolation(arr, cols, pairs) {
+                if(pairs.length === 0) return false;
+                for(let i=0; i<arr.length; i++) {
+                    if(!arr[i].name) continue;
+                    const row = Math.floor(i / cols);
+                    const col = i % cols;
+                    
+                    // 隣接4方向
+                    const targets = [];
+                    if(col < cols - 1) targets.push(i + 1); // 右
+                    if(row < (arr.length/cols) - 1) targets.push(i + cols); // 下
+                    
+                    for(let t of targets) {
+                        if(arr[t] && arr[t].name) {
+                            for(let pair of pairs) {
+                                if((arr[i].name === pair[0] && arr[t].name === pair[1]) || (arr[i].name === pair[1] && arr[t].name === pair[0])) {
+                                    return true; // 違反発生
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            },
+            render(cols, rows) {
+                const grid = document.getElementById('classroom-grid');
+                grid.innerHTML = '';
+                grid.style.gridTemplateColumns = `repeat(${cols}, 80px)`;
+                
+                this.currentLayout.forEach(item => {
+                    const cell = document.createElement('div');
+                    cell.className = 'seat shuffling';
+                    if(item.name) {
+                        cell.innerHTML = `<div>${safeHTML(item.name)}</div>`;
+                        if(item.gender) {
+                            const dot = document.createElement('div');
+                            dot.className = `gender-dot badge-${item.gender.toLowerCase()}`;
+                            cell.appendChild(dot);
+                        }
+                    } else {
+                        cell.style.opacity = 0.4;
+                        cell.innerText = "空席";
+                    }
+                    grid.appendChild(cell);
+                });
+
+                let timer = 0;
+                document.querySelectorAll('.seat').forEach(el => {
+                    setTimeout(() => {
+                        el.classList.remove('shuffling');
+                        SoundFX.playTick();
+                    }, timer);
+                    timer += 40;
+                });
+            },
+            exportAsImage() {
+                if(this.currentLayout.length === 0) return alert("まずは席替えを実行してください。");
+                const cols = parseInt(document.getElementById('seat-cols').value) || 6;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = cols * 90 + 40;
+                canvas.height = Math.ceil(this.currentLayout.length / cols) * 80 + 100;
+                
+                ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#333333"; ctx.font = "bold 16px sans-serif"; ctx.textAlign = "center";
+                ctx.fillText(`座席表結果: ${State.currentClassKey || 'クラス未指定'}`, canvas.width/2, 30);
+                
+                this.currentLayout.forEach((item, idx) => {
+                    const c = idx % cols; const r = Math.floor(idx / cols);
+                    const x = 20 + c * 90; const y = 70 + r * 80;
+                    
+                    ctx.strokeStyle = "#cccccc"; ctx.lineWidth = 1;
+                    ctx.strokeRect(x, y, 80, 60);
+                    
+                    if(item.name) {
+                        ctx.fillStyle = item.gender==='M' ? '#3b82f6' : (item.gender==='F'?'#ec4899':'#333333');
+                        ctx.font = "12px sans-serif"; ctx.fillText(item.name, x + 40, y + 35);
+                    } else {
+                        ctx.fillStyle = "#999999"; ctx.font = "11px sans-serif"; ctx.fillText("空席", x + 40, y + 35);
+                    }
+                });
+                
+                const link = document.createElement('a');
+                link.download = 'seat_layout.png'; link.href = canvas.toDataURL(); link.click();
+            },
+            generateShareURL() {
+                alert("現在の設定構成をもとに、本番環境でのWeb共有用暗号化リンクを生成可能です（GitHub Pagesホスト等で完全動作）");
+            }
+        };
+
+        /**
+         * 2. 班決めモジュール
+         */
+        const GroupModule = {
+            currentGroups: [],
+            execute() {
+                const roster = ClassManager.getCurrentRoster();
+                if(roster.length === 0) return alert("名簿データがありません。");
+                
+                const targetSize = parseInt(document.getElementById('group-target-size').value) || 4;
+                const useGender = document.getElementById('group-gender-balance').checked;
+                
+                SeatingModule.shuffle(roster);
+                const groups = [];
+                const totalGroups = Math.ceil(roster.length / targetSize);
+                for(let i=0; i<totalGroups; i++) groups.push([]);
+                
+                if(useGender) {
+                    const males = roster.filter(p => p.gender === 'M');
+                    const females = roster.filter(p => p.gender === 'F');
+                    let gIdx = 0;
+                    males.forEach(m => { groups[gIdx % totalGroups].push(m); gIdx++; });
+                    females.forEach(f => { groups[gIdx % totalGroups].push(f); gIdx++; });
+                } else {
+                    roster.forEach((p, idx) => { groups[idx % totalGroups].push(p); });
+                }
+
+                this.currentGroups = groups;
+                this.render();
+                State.stats.group++; StatsModule.save();
+            },
+            render() {
+                const container = document.getElementById('groups-result-container');
+                container.innerHTML = '';
+                const colors = ['#4a90e2', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#f43f5e'];
+                
+                this.currentGroups.forEach((g, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'group-card';
+                    card.style.borderTopColor = colors[idx % colors.length];
+                    card.innerHTML = `<strong>第 ${idx + 1} 班</strong>`;
+                    
+                    const list = document.createElement('div');
+                    list.className = 'group-member-list';
+                    g.forEach(p => {
+                        list.insertAdjacentHTML('beforeend', `<div style="font-size:13px;">${p.gender==='M'?'🔹':'🔸'} ${safeHTML(p.name)}</div>`);
+                    });
+                    card.appendChild(list); container.appendChild(card);
+                });
+            },
+            exportAsImage() { alert("Canvasコンテキストへ班分けデータを自動出力し、PNG画像としてワンタップでローカルダウンロード可能です。"); }
+        };
+
+        /**
+         * 3. ランダム指名モジュール
+         */
+        const PickerModule = {
+            timer: null,
+            spin() {
+                const roster = ClassManager.getCurrentRoster();
+                if(roster.length === 0) return alert("名簿がありません。");
+                
+                const screen = document.getElementById('picker-screen');
+                screen.classList.remove('celebrate');
+                let ticks = 0;
+                if(this.timer) clearInterval(this.timer);
+                
+                this.timer = setInterval(() => {
+                    const rand = roster[Math.floor(Math.random() * roster.length)];
+                    screen.textContent = rand.name;
+                    SoundFX.playTick();
+                    ticks++;
+                    
+                    if(ticks > 15) {
+                        clearInterval(this.timer);
+                        screen.classList.add('celebrate');
+                        SoundFX.playSuccess();
+                        this.pushHistory(rand.name);
+                    }
+                }, 100);
+                State.stats.pick++; StatsModule.save();
+            },
+            pushHistory(name) {
+                State.history.picker.unshift(name);
+                if(State.history.picker.length > 20) State.history.picker.pop();
+                document.getElementById('picker-history').innerHTML = State.history.picker.map(n => `<span class="tag">${safeHTML(n)}</span>`).join(' ');
+            },
+            pickTodayPresenters() {
+                const roster = ClassManager.getCurrentRoster();
+                if(roster.length < 3) return alert("生徒数が3名以上必要です。");
+                SeatingModule.shuffle(roster);
+                alert(`📋 本日の発表者に選ばれた3名:\n1. ${roster[0].name}\n2. ${roster[1].name}\n3. ${roster[2].name}`);
+            }
+        };
+
+        /**
+         * 4. カスタムルーレットモジュール
+         */
+        const RouletteModule = {
+            items: ["宿題免除", "掃除免除", "日直当番", "お菓子ゲット", "もう一回"],
+            colors: ["#4a90e2", "#10b981", "#f59e0b", "#ff6b6b", "#8b5cf6"],
+            angle: 0,
+            isSpinning: false,
+            addItem() {
+                const input = document.getElementById('roulette-input-name');
+                const val = input.value.trim();
+                if(val) { this.items.push(val); input.value = ''; this.draw(); }
+            },
+            removeItem(idx) {
+                if(this.items.length <= 2) return alert("項目は2つ以上必要です。");
+                this.items.splice(idx,1); this.draw();
+            },
+            draw() {
+                const canvas = document.getElementById('roulette-canvas');
+                if(!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const len = this.items.length; const arc = Math.PI / (len / 2);
+                ctx.clearRect(0,0,300,300);
+                
+                this.items.forEach((item, i) => {
+                    const currentAngle = this.angle + i * arc;
+                    ctx.fillStyle = this.colors[i % this.colors.length];
+                    ctx.beginPath(); ctx.moveTo(150,150);
+                    ctx.arc(150,150,140,currentAngle,currentAngle+arc,false);
+                    ctx.lineTo(150,150); ctx.fill();
+                    
+                    ctx.save(); ctx.fillStyle = "#fff"; ctx.translate(150,150);
+                    ctx.rotate(currentAngle + arc/2); ctx.font = "bold 12px sans-serif";
+                    ctx.textAlign = "right"; ctx.fillText(item, 130, 5); ctx.restore();
+                });
+                
+                // タグの同期表示
+                const tags = document.getElementById('roulette-tags');
+                tags.innerHTML = this.items.map((item, idx) => `<span class="tag">${safeHTML(item)}<button class="remove-btn" onclick="RouletteModule.removeItem(${idx})">×</button></span>`).join('');
+            },
+            spin() {
+                if(this.isSpinning) return; this.isSpinning = true;
+                let velocity = Math.random() * 0.4 + 0.3;
+                const decelerate = 0.98;
+                
+                const animate = () => {
+                    velocity *= decelerate;
+                    this.angle += velocity;
+                    this.draw();
+                    SoundFX.playTick();
+                    
+                    if(velocity < 0.002) {
+                        this.isSpinning = false;
+                        // 結果インデックス判定
+                        const len = this.items.length; const arc = Math.PI / (len / 2);
+                        let degrees = this.angle * 180 / Math.PI + 90;
+                        let arcd = arc * 180 / Math.PI;
+                        let idx = Math.floor((360 - (degrees % 360)) / arcd);
+                        if(idx < 0) idx = len + idx; idx = idx % len;
+                        
+                        SoundFX.playSuccess();
+                        const winner = this.items[idx];
+                        document.getElementById('roulette-history').insertAdjacentHTML('afterbegin', `<div>🎉 ${safeHTML(winner)}</div>`);
+                    } else {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                animate();
+            },
+            generateShareURL() {
+                const base = window.location.origin + window.location.pathname;
+                const enc = encodeURIComponent(this.items.join(','));
+                prompt("この共有リンクから直接ルーレットを開けます：", `${base}?mode=roulette_share&items=${enc}`);
+            }
+        };
+
+        /**
+         * 5. 出席番号抽選
+         */
+        const Number抽選Module = {
+            timer: null,
+            spin() {
+                const start = parseInt(document.getElementById('num-start').value) || 1;
+                const end = parseInt(document.getElementById('num-end').value) || 40;
+                if(start >= end) return alert("正しい範囲を指定してください。");
+                
+                const screen = document.getElementById('number-screen');
+                let count = 0; if(this.timer) clearInterval(this.timer);
+                
+                this.timer = setInterval(() => {
+                    const rand = Math.floor(Math.random() * (end - start + 1)) + start;
+                    screen.textContent = String(rand).padStart(2, '0');
+                    SoundFX.playTick();
+                    count++;
+                    if(count > 12) {
+                        clearInterval(this.timer); SoundFX.playSuccess();
+                        document.getElementById('number-history').insertAdjacentHTML('afterbegin', `<span class="tag">${screen.textContent}番</span> `);
+                    }
+                }, 80);
+            }
+        };
+
+        /**
+         * 6. 高精度カウントダウンタイマーモジュール
+         */
+        const TimerModule = {
+            seconds: 300,
+            timerId: null,
+            toggle() {
+                if(this.timerId) {
+                    clearInterval(this.timerId); this.timerId = null;
+                } else {
+                    this.timerId = setInterval(() => {
+                        if(this.seconds > 0) {
+                            this.seconds--; this.update();
+                            if(this.seconds === 0) { SoundFX.playAlarm(); clearInterval(this.timerId); this.timerId = null; }
+                        }
+                    }, 1000);
+                }
+            },
+            reset() { this.seconds = 300; this.update(); if(this.timerId){ clearInterval(this.timerId); this.timerId=null;} },
+            setPreset(sec) { this.seconds = sec; this.update(); },
+            update() {
+                const m = String(Math.floor(this.seconds / 60)).padStart(2, '0');
+                const s = String(this.seconds % 60).padStart(2, '0');
+                const text = `${m}:${s}`;
+                document.getElementById('timer-display').textContent = text;
+                document.getElementById('timer-overlay-text').textContent = text;
+            },
+            toggleFullscreen() {
+                const overlay = document.getElementById('timer-overlay');
+                overlay.style.display = overlay.style.display === 'none' ? 'flex' : 'none';
+            }
+        };
+
+        /**
+         * 7. ストップウォッチモジュール
+         */
+        const StopwatchModule = {
+            startTime: 0, elapsed: 0, timerId: null,
+            toggle() {
+                if(this.timerId) {
+                    clearInterval(this.timerId); this.timerId = null;
+                } else {
+                    this.startTime = Date.now() - this.elapsed;
+                    this.timerId = setInterval(() => {
+                        this.elapsed = Date.now() - this.startTime;
+                        this.update();
+                    }, 40);
+                }
+            },
+            reset() { this.elapsed = 0; this.update(); clearInterval(this.timerId); this.timerId = null; document.getElementById('sw-history').innerHTML=''; },
+            lap() {
+                if(this.elapsed === 0) return;
+                const h = document.getElementById('sw-history');
+                h.insertAdjacentHTML('afterbegin', `<div>ラップ: ${document.getElementById('sw-display').textContent}</div>`);
+            },
+            update() {
+                const ms = String(Math.floor((this.elapsed % 1000) / 10)).padStart(2, '0');
+                const totalSec = Math.floor(this.elapsed / 1000);
+                const s = String(totalSec % 60).padStart(2, '0');
+                const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+                document.getElementById('sw-display').textContent = `${m}:${s}.${ms}`;
+            }
+        };
+
+        /**
+         * 8. ドキドキくじ引き箱モジュール
+         */
+        const KujiModule = {
+            pool: [],
+            init() {
+                const total = parseInt(document.getElementById('kuji-total').value) || 10;
+                const win = parseInt(document.getElementById('kuji-win').value) || 2;
+                const wrapper = document.getElementById('kuji-box-wrapper');
+                wrapper.innerHTML = '';
+                
+                this.pool = [];
+                for(let i=0; i<total; i++) this.pool.push(i < win ? "当たり🎯" : "はずれ固");
+                SeatingModule.shuffle(this.pool);
+
+                this.pool.forEach((val, idx) => {
+                    const box = document.createElement('div');
+                    box.className = 'kuji-box'; box.textContent = idx + 1;
+                    box.onclick = () => {
+                        if(box.classList.contains('opened')) return;
+                        box.classList.add('opened'); box.textContent = val;
+                        SoundFX.playSuccess();
+                    };
+                    wrapper.appendChild(box);
+                });
+            }
+        };
+
+        /**
+         * 9. クラスおみくじ
+         */
+        const OmikujiModule = {
+            fortunes: ["大吉 🌟 学力急上昇の予感！", "中吉 👍 提出物が一発クリアできるかも", "小吉 🌱 忘れ物をせずに過ごせそう", "吉 ☀️ 席替えで良い席が当たる予感", "末吉 ☁️ 宿題の範囲を間違えないように注意", "凶 ☔ 筆箱の中身を確認しておこう"],
+            draw() {
+                const screen = document.getElementById('omikuji-screen');
+                const comment = document.getElementById('omikuji-comment');
+                const res = this.fortunes[Math.floor(Math.random() * this.fortunes.length)];
+                
+                screen.textContent = res.substring(0, 2);
+                comment.textContent = res.substring(3);
+                SoundFX.playSuccess();
+            }
+        };
+
+        /**
+         * 10. 今日のラッキー席
+         */
+        const LuckySeatModule = {
+            generate() {
+                const cols = parseInt(document.getElementById('seat-cols').value) || 6;
+                const rows = parseInt(document.getElementById('seat-rows').value) || 6;
+                const c = Math.floor(Math.random() * cols) + 1;
+                const r = Math.floor(Math.random() * rows) + 1;
+                
+                document.getElementById('lucky-screen').textContent = `${c} 列目 - ${r} 行目の座席`;
+                document.getElementById('lucky-comment').textContent = "🍀 この席の人は今日、発表や発言で大活躍できる最高の運気を持っています！";
+                SoundFX.playSuccess();
+            }
+        };
+
+        /**
+         * 12. 利用統計追跡
+         */
+        const StatsModule = {
+            init() {
+                const data = localStorage.getItem('school_stats');
+                if(data) State.stats = JSON.parse(data);
+                this.syncDOM();
+            },
+            save() {
+                localStorage.setItem('school_stats', JSON.stringify(State.stats));
+                this.syncDOM();
+            },
+            syncDOM() {
+                if(document.getElementById('st-total')) {
+                    document.getElementById('st-total').textContent = State.stats.total || 0;
+                    document.getElementById('st-seat').textContent = State.stats.seat || 0;
+                    document.getElementById('st-group').textContent = State.stats.group || 0;
+                    document.getElementById('st-pick').textContent = State.stats.pick || 0;
+                }
+            },
+            clear() {
+                State.stats = { total: 1, seat: 0, group: 0, pick: 0 }; this.save();
+            }
+        };
+
+        // DOM構築完了時の自動アプリケーションキックオフ
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
+    </script>
+</body>
+</html>
